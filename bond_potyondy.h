@@ -3,14 +3,14 @@ void bond_potyondy(Bond *bond, Part parti, Part partj, double gamma, double dt)
     double *omi, *omj;
     double *posi, *posj;
     double *posi_in, *posj_in;
-    double kn, ks, radius, area;
+    double kn, ks, radius, area, *inertia;
 
     /*Getting bond values*/
 
     kn = bond -> getStiffNorm();
     ks = bond -> getStiffShear();
 
-//    inertia = bond -> getInertia();
+    inertia = bond -> getInertia();
 
     radius = bond -> getRad();
     area = 3.14159265*radius*radius;
@@ -116,14 +116,19 @@ void bond_potyondy(Bond *bond, Part parti, Part partj, double gamma, double dt)
         t[2] = T[2]/abs_T;
     }
 
+    double om_rel[3];
+
+    om_rel[0] = omi[0] - omj[0];
+    om_rel[1] = omi[1] - omj[1];
+    om_rel[2] = omi[2] - omj[2];
+
     /*Computing forces and torques*/
 
-    double fn[3], fs[3], ts[3];
+    double fn[3], fs[3], tst[3], tsr[3], tn[3];
 
     fn[0] = kn*area*(abs_rc - abs_r0)*r_c[0]/abs_rc;
     fn[1] = kn*area*(abs_rc - abs_r0)*r_c[1]/abs_rc;
     fn[2] = kn*area*(abs_rc - abs_r0)*r_c[2]/abs_rc;
-
 
     fs[0] = ks*area*abs_r0*theta*s[0];
     fs[1] = ks*area*abs_r0*theta*s[1];
@@ -131,11 +136,25 @@ void bond_potyondy(Bond *bond, Part parti, Part partj, double gamma, double dt)
 
     double abs_fs = abs(fs);
 
-    ts[0] = 0.5*abs_rc*abs_fs*t[0];
-    ts[1] = 0.5*abs_rc*abs_fs*t[1];
-    ts[2] = 0.5*abs_rc*abs_fs*t[2];
+//    tn[0] = ks*inertia[1]*om_rel[0]*r_c[0]/abs_rc;
+//    tn[1] = ks*inertia[1]*om_rel[1]*r_c[1]/abs_rc;
+//    tn[2] = ks*inertia[1]*om_rel[2]*r_c[2]/abs_rc;
+
+    tst[0] = 0.5*abs_rc*abs_fs*t[0];
+    tst[1] = 0.5*abs_rc*abs_fs*t[1];
+    tst[2] = 0.5*abs_rc*abs_fs*t[2];
+
+//    tsr[0] = kn*inertia[0]*om_rel[0]*dt*t[0];
+//    tsr[1] = kn*inertia[0]*om_rel[1]*dt*t[1];
+//    tsr[2] = kn*inertia[0]*om_rel[2]*dt*t[2];
+
+//    ts[0] = (0.5*abs_rc*abs_fs + kn*inertia[0]*om_rel[0]*dt)*t[0];
+//    ts[1] = (0.5*abs_rc*abs_fs + kn*inertia[0]*om_rel[1]*dt)*t[1];
+//    ts[2] = (0.5*abs_rc*abs_fs + kn*inertia[0]*om_rel[2]*dt)*t[2];
 
     bond -> setForce_n(fn);
     bond -> setForce_s(fs);
-    bond -> setTorque_s(ts);
+//    bond -> setTorque_n(tn);
+    bond -> setTorque_st(tst);
+//    bond -> setTorque_sr(tsr);
 }

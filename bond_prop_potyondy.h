@@ -12,7 +12,8 @@ public:
     force_n_{0., 0., 0.},
     force_s_{0., 0., 0.},
     torque_n_{0., 0., 0.},
-    torque_s_{0., 0., 0.}
+    torque_st_{0., 0., 0.},
+    torque_sr_{0., 0., 0.}
   {}
 
   Bond(double sigma, double tau, double radius, double kn, double ks, double area, double kb, double kt) :
@@ -28,11 +29,12 @@ public:
     inertia_{I, J}
   {}
 
-  Bond(double fnx, double fny, double fnz, double fsx, double fsy, double fsz, double tnx, double tny, double tnz, double tsx, double tsy, double tsz) :
+  Bond(double fnx, double fny, double fnz, double fsx, double fsy, double fsz, double tnx, double tny, double tnz, double tstx, double tsty, double tstz, double tsrx, double tsry, double tsrz) :
     force_n_{fnx, fny, fnz},
     force_s_{fsx, fsy, fsz},
     torque_n_{tnx, tny, tnz},
-    torque_s_{tsx, tsy, tsz}
+    torque_st_{tstx, tsty, tstz},
+    torque_sr_{tsrx, tsry, tsrz}
   {}
 
 
@@ -68,8 +70,11 @@ public:
   double* getTorque_n()
   { return torque_n_; }
 
-  double* getTorque_s()
-  { return torque_s_; }
+  double* getTorque_st()
+  { return torque_st_; }
+
+  double* getTorque_sr()
+  { return torque_sr_; }
 
 
   void setSigma(double sigma)
@@ -120,17 +125,24 @@ public:
     torque_n_[2] = tn[2];
   }
 
-  void setTorque_s(double* ts)
+  void setTorque_st(double* tst)
   {
-    torque_s_[0] = ts[0];
-    torque_s_[1] = ts[1];
-    torque_s_[2] = ts[2];
+    torque_st_[0] = tst[0];
+    torque_st_[1] = tst[1];
+    torque_st_[2] = tst[2];
+  }
+
+  void setTorque_sr(double* tsr)
+  {
+    torque_sr_[0] = tsr[0];
+    torque_sr_[1] = tsr[1];
+    torque_sr_[2] = tsr[2];
   }
 
 private:
   double sigmac_, tauc_, rad_, kn_, ks_, inertia_[2];
   int partid_[2];
-  double force_n_[3], force_s_[3], torque_n_[3], torque_s_[3];
+  double force_n_[3], force_s_[3], torque_n_[3], torque_st_[3], torque_sr_[3];
 
 };
 
