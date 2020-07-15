@@ -4,10 +4,10 @@
 #include <vector>
 #include <list>
 #include "abs.h"
-#include "bond_prop_potyondy.h"
 #include "part.h"
 #include "distance.h"
-#include "bond_potyondy.h"
+#include "properties_bond.h"
+#include "forces_bond_hybrid.h"
 
 int main()
 {
@@ -21,13 +21,13 @@ int main()
     double const gamma = 1.;
     int bonds = 0;
     int count = 0;
-    int const n = 10000000;
+    int const n = 20000000;
     int const n_part = 27;
 
     std::ofstream out_file;
-    out_file.open("data_lattice_hybrot_shearxy_vel+disp.csv");
+    out_file.open("data_hyb_rotxx.csv");
     out_file << "timestep,ID,x,y,z,u,v,w,fx,fy,fz,omx,omy,omz,tx,ty,tz\n";
-    int const n_out = 10000;
+    int const n_out = 20000;
     bool flag = false;
 
     Part vec_part[n_part];
@@ -137,12 +137,11 @@ int main()
                 v = vec_part[j].getVel();
                 om = vec_part[j].getRot();
 
-                x[0] += 1.e-6;
+//                x[0] += 1.e-6;
                 v[0] = 0.001;
-                v[1] = 0.001;
-//                om[0] = 0.0001;
-//                vec_part[j].setPos(x);
-
+//                v[2] = 0.001;
+//                v[1] = 0.001;
+//                om[0] = 0.001;
             }
 
         }
@@ -217,7 +216,7 @@ int main()
 
             IDS = vec_bond[j].getIds();
             bondino = &vec_bond[j];
-            bond_potyondy(bondino, vec_part[IDS[0]], vec_part[IDS[1]], gamma, dt);
+            bond_potyondy(bondino, vec_part[IDS[0]], vec_part[IDS[1]], dt);
 
             if (i==0)
                 std::cout << "normal force: " << vec_bond[j].getForce_n()[0] <<","<< vec_bond[j].getForce_n()[1] <<","<< vec_bond[j].getForce_n()[2] << "\n"
@@ -246,17 +245,9 @@ int main()
                     F_bond[1] += -(vec_bond[k].getForce_n()[1] + vec_bond[k].getForce_s()[1]);
                     F_bond[2] += -(vec_bond[k].getForce_n()[2] + vec_bond[k].getForce_s()[2]);
 
-                    T_bond[0] += -(vec_bond[k].getTorque_st()[0]);
-                    T_bond[1] += -(vec_bond[k].getTorque_st()[1]);
-                    T_bond[2] += -(vec_bond[k].getTorque_st()[2]);
-
-//                    T_bond[0] += -(vec_bond[k].getTorque_s()[0] + vec_bond[k].getTorque_n()[0]);
-//                    T_bond[1] += -(vec_bond[k].getTorque_s()[1] + vec_bond[k].getTorque_n()[1]);
-//                    T_bond[2] += -(vec_bond[k].getTorque_s()[2] + vec_bond[k].getTorque_n()[2]);
-
-//                    T_bond[0] += -(vec_bond[k].getTorque_st()[0] + vec_bond[k].getTorque_sr()[0] + vec_bond[k].getTorque_n()[0]);
-//                    T_bond[1] += -(vec_bond[k].getTorque_st()[1] + vec_bond[k].getTorque_sr()[1] + vec_bond[k].getTorque_n()[1]);
-//                    T_bond[2] += -(vec_bond[k].getTorque_st()[2] + vec_bond[k].getTorque_sr()[2] + vec_bond[k].getTorque_n()[2]);
+                    T_bond[0] += -(vec_bond[k].getTorque_st()[0] + vec_bond[k].getTorque_sr()[0] + vec_bond[k].getTorque_tr()[0] + vec_bond[k].getTorque_n()[0]);
+                    T_bond[1] += -(vec_bond[k].getTorque_st()[1] + vec_bond[k].getTorque_sr()[1] + vec_bond[k].getTorque_tr()[1] + vec_bond[k].getTorque_n()[1]);
+                    T_bond[2] += -(vec_bond[k].getTorque_st()[2] + vec_bond[k].getTorque_sr()[2] + vec_bond[k].getTorque_tr()[2] + vec_bond[k].getTorque_n()[2]);
                 }
 
                 else if (j == IDS[1])
@@ -265,17 +256,9 @@ int main()
                     F_bond[1] += (vec_bond[k].getForce_n()[1] + vec_bond[k].getForce_s()[1]);
                     F_bond[2] += (vec_bond[k].getForce_n()[2] + vec_bond[k].getForce_s()[2]);
 
-                    T_bond[0] += (vec_bond[k].getTorque_st()[0]);
-                    T_bond[1] += (vec_bond[k].getTorque_st()[1]);
-                    T_bond[2] += (vec_bond[k].getTorque_st()[2]);
-
-//                    T_bond[0] += (vec_bond[k].getTorque_s()[0] + vec_bond[k].getTorque_n()[0]);
-//                    T_bond[1] += (vec_bond[k].getTorque_s()[1] + vec_bond[k].getTorque_n()[1]);
-//                    T_bond[2] += (vec_bond[k].getTorque_s()[2] + vec_bond[k].getTorque_n()[2]);
-
-//                    T_bond[0] += (vec_bond[k].getTorque_st()[0] + vec_bond[k].getTorque_sr()[0] + vec_bond[k].getTorque_n()[0]);
-//                    T_bond[1] += (vec_bond[k].getTorque_st()[1] + vec_bond[k].getTorque_sr()[1] + vec_bond[k].getTorque_n()[1]);
-//                    T_bond[2] += (vec_bond[k].getTorque_st()[2] + vec_bond[k].getTorque_sr()[2] + vec_bond[k].getTorque_n()[2]);
+                    T_bond[0] += (vec_bond[k].getTorque_st()[0] + vec_bond[k].getTorque_sr()[0] + vec_bond[k].getTorque_tr()[0] + vec_bond[k].getTorque_n()[0]);
+                    T_bond[1] += (vec_bond[k].getTorque_st()[1] + vec_bond[k].getTorque_sr()[1] + vec_bond[k].getTorque_tr()[1] + vec_bond[k].getTorque_n()[1]);
+                    T_bond[2] += (vec_bond[k].getTorque_st()[2] + vec_bond[k].getTorque_sr()[2] + vec_bond[k].getTorque_tr()[2] + vec_bond[k].getTorque_n()[2]);
                 }
             }
 
